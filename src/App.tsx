@@ -2,8 +2,10 @@ import React from 'react';
 import { useState } from 'react';
 import { fetchQuizQuestions, Difficulty, QuestionState } from './Components/API';
 import QuestionCard from './Components/QuestionCard';
+//Styles
+import { GlobalStyle, Wrapper } from './App.styles';
 
-type AnswerObject = {
+export type AnswerObject = {
   question: string;
   answer: string;
   correct: boolean;
@@ -36,13 +38,13 @@ const App = () => {
   };
 
   const checkAnswer = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if(!gameOver) {
+    if (!gameOver) {
       //Users Answer
       const answer = e.currentTarget.value;
       //Check answer against correct answer
       const correct = questions[number].correct_answer === answer;
       //Add score if answer is correct
-      if(correct) setScore(prev => prev + 1);
+      if (correct) setScore(prev => prev + 1);
       //Save answer in the array for user answers
       const answerObject = {
         question: questions[number].question,
@@ -55,31 +57,42 @@ const App = () => {
   }
 
   const nextQuestion = () => {
+    // Move on to the next question if not the last question
+    const nextQuestion = number + 1;
+
+    if (nextQuestion === TOTAL_QUESTIONS) {
+      setGameOver(true);
+    } else {
+      setNumber(nextQuestion);
+    }
 
   }
   return (
-    <div className="App">
-      <h1>React Quiz</h1>
-      {gameOver || userAnswers.length === TOTAL_QUESTIONS ? (
-        <button className="start" onClick={startTrivia}>Start</button>
-      ) : null}
-      {!gameOver ? <p className="score">Score: </p> : null}
-      {loading && <p>Loading Questions ...</p>}
+    <>
+      <GlobalStyle />
+      <Wrapper>
+        <h1>React Quiz</h1>
+        {gameOver || userAnswers.length === TOTAL_QUESTIONS ? (
+          <button className="start" onClick={startTrivia}>Start</button>
+        ) : null}
+        {!gameOver ? <p className="score">Score: {score}</p> : null}
+        {loading && <p>Loading Questions ...</p>}
 
-      {!loading && !gameOver && (
-        <QuestionCard
-          questionNr={number + 1}
-          totalQuestions={TOTAL_QUESTIONS}
-          question={questions[number].question}
-          answers={questions[number].answers}
-          userAnswer={userAnswers ? userAnswers[number] : undefined}
-          callback={checkAnswer}
-        />
-      )}
-      {!gameOver && !loading && userAnswers.length === number + 1 && number !== TOTAL_QUESTIONS - 1 ? (
-        <button className="next" onClick={nextQuestion}>Next Question</button>
-      ) : null}
-    </div>
+        {!loading && !gameOver && (
+          <QuestionCard
+            questionNr={number + 1}
+            totalQuestions={TOTAL_QUESTIONS}
+            question={questions[number].question}
+            answers={questions[number].answers}
+            userAnswer={userAnswers ? userAnswers[number] : undefined}
+            callback={checkAnswer}
+          />
+        )}
+        {!gameOver && !loading && userAnswers.length === number + 1 && number !== TOTAL_QUESTIONS - 1 ? (
+          <button className="next" onClick={nextQuestion}>Next Question</button>
+        ) : null}
+      </Wrapper>
+    </>
   );
 }
 
